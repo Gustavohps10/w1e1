@@ -5,8 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
-		<!-- repo root -->
-		<HuskyRoot Condition="'$(HuskyRoot)' == ''">..\</HuskyRoot>
+	
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -14,15 +13,6 @@
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
 	</ItemGroup>
 
-	<Target Name="Husky"
-			AfterTargets="Restore"
-			Condition="'$(HUSKY)' != 0">
-
-		<Exec Command="dotnet tool restore" />
-
-		<Exec Command="dotnet husky install"
-			  WorkingDirectory="$(HuskyRoot)" />
-
-	</Target>
+	
 
 </Project>
