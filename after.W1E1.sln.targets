@@ -1,38 +1,3 @@
 <Project>
-	<PropertyGroup>
-		<HuskyRoot Condition="'$(HuskyRoot)' == ''">$(MSBuildThisFileDirectory)</HuskyRoot>
-		<W1E1AutomationStampFile Condition="'$(W1E1AutomationStampFile)' == ''">$(HuskyRoot).w1e1-automation-stamp</W1E1AutomationStampFile>
-		<W1E1AutomationForceRun Condition="'$(W1E1AutomationForceRun)' == ''">true</W1E1AutomationForceRun>
-	</PropertyGroup>
-
-	<Target Name="W1E1InfrastructureAutomation" BeforeTargets="_GenerateRestoreProjectSpec;_RestoreProjectJsonPackages" Condition="'$(W1E1AutomationForceRun)' == 'true'">
-		<Message Text="[W1E1 INFRASTRUCTURE] Initializing automation system at solution root" Importance="High" />
-		<PropertyGroup>
-			<W1E1ExecutionTime>$([System.DateTime]::Now.Ticks)</W1E1ExecutionTime>
-		</PropertyGroup>
-		<Message Text="[W1E1 INFRASTRUCTURE] Execution timestamp: $(W1E1ExecutionTime)" Importance="High" />
-	</Target>
-
-	<Target Name="HuskyGlobalRestore" AfterTargets="Restore">
-		<Message Text="==================== HUSKY GLOBAL TARGET START ====================" Importance="High" />
-		<Message Text="HuskyRoot: $(HuskyRoot)" Importance="High" />
-
-		<Message Text="Running: dotnet tool restore" Importance="High" />
-		<Exec Command="dotnet tool restore"
-			  WorkingDirectory="$(HuskyRoot)"
-			  StandardOutputImportance="High"
-			  StandardErrorImportance="High" />
-
-		<Message Text="Running: dotnet husky install" Importance="High" />
-		<Exec Command="dotnet husky install"
-			  WorkingDirectory="$(HuskyRoot)"
-			  StandardOutputImportance="High"
-			  StandardErrorImportance="High" />
-
-		<Message Text="==================== HUSKY GLOBAL TARGET END ====================" Importance="High" />
-	</Target>
-
-	<Target Name="W1E1PostRestoreAutomation" AfterTargets="HuskyGlobalRestore">
-		<Message Text="[W1E1 INFRASTRUCTURE] Post-restore automation complete" Importance="High" />
-	</Target>
+	 
 </Project>

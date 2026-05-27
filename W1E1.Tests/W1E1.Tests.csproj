@@ -1,12 +1,14 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
-		<HuskyRoot Condition="'$(HuskyRoot)' == ''">..\</HuskyRoot>
+		<HuskyRoot Condition="'$(HuskyRoot)' == ''">..\ </HuskyRoot>
+		<HuskyStampFile>$(HuskyRoot).husky/_/install.stamp</HuskyStampFile>
 	</PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="coverlet.collector" Version="6.0.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
@@ -15,49 +17,37 @@
 		<PackageReference Include="xunit" Version="2.6.2" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="2.5.5" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="..\W1E1.Core\W1E1.Core.csproj" />
 		<ProjectReference Include="..\W1E1.SqlServer\W1E1.SqlServer.csproj" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<Using Include="Xunit" />
 	</ItemGroup>
-	<Target Name="Husky" AfterTargets="Restore" Condition="'$(HUSKY)' != 0">
-		<Message Text="==================== HUSKY TARGET START ====================" Importance="High" />
-		<Message Text="HuskyRoot: $(HuskyRoot)" Importance="High" />
-		<Message Text="Project: $(MSBuildProjectFullPath)" Importance="High" />
-		<Message Text="SolutionDir: $(SolutionDir)" Importance="High" />
-		<Message Text="MSBuildThisFileDirectory: $(MSBuildThisFileDirectory)" Importance="High" />
-		<Message Text="Configuration: $(Configuration)" Importance="High" />
-		<Message Text="HUSKY env: $(HUSKY)" Importance="High" />
-		<Message Text="Checking dotnet-tools.json..." Importance="High" />
-		<Message Text="Path: $(HuskyRoot).config/dotnet-tools.json" Importance="High" />
-		<Exec Command="dir $(HuskyRoot).config"
-			  StandardOutputImportance="High"
-			  StandardErrorImportance="High" />
-		<Message Text="Running: dotnet tool restore" Importance="High" />
-		<Exec Command="dotnet tool restore"
-			  StandardOutputImportance="High"
-			  StandardErrorImportance="High" />
-		<Message Text="Tool restore finished" Importance="High" />
-		<Message Text="Running: dotnet husky install" Importance="High" />
-		<Exec Command="dotnet husky install"
-			  WorkingDirectory="$(HuskyRoot)"
-			  StandardOutputImportance="High"
-			  StandardErrorImportance="High" />
-		<Message Text="Husky install finished" Importance="High" />
-		<Message Text="Checking .husky folder existence..." Importance="High" />
-		<Exec Command="dir $(HuskyRoot).husky"
-			  Condition="Exists('$(HuskyRoot).husky')"
-			  StandardOutputImportance="High"
-			  StandardErrorImportance="High" />
-		<Message Text="Touching install stamp..." Importance="High" />
+
+	<Target Name="HuskyAutomationDetect" BeforeTargets="_GenerateRestoreProjectSpec" Condition="'$(HUSKY)' != 0">
+		<Message Text="[HUSKY] Intercepting MSBuild evaluation - Restore specification generation phase" Importance="High" />
+		<Message Text="[HUSKY] Detection context: HuskyRoot=$(HuskyRoot)" Importance="High" />
+	</Target>
+
+	<Target Name="HuskyInstallAutomation" BeforeTargets="_GenerateRestoreProjectSpec" Condition="'$(HUSKY)' != 0 And !Exists('$(HuskyStampFile)')">
+		<Message Text="[HUSKY] CRITICAL: Installation stamp missing - triggering tool restore and Git hook installation" Importance="High" />
+		<Message Text="[HUSKY] Target missing: $(HuskyStampFile)" Importance="High" />
+		<Exec Command="dotnet tool restore" StandardOutputImportance="High" StandardErrorImportance="High" />
+		<Message Text="[HUSKY] Local tools restored" Importance="High" />
+		<Exec Command="dotnet husky install" StandardOutputImportance="High" StandardErrorImportance="High" WorkingDirectory="$(HuskyRoot)" />
+		<Message Text="[HUSKY] Git hooks installed successfully" Importance="High" />
 		<MakeDir Directories="$(HuskyRoot).husky\_" Condition="!Exists('$(HuskyRoot).husky\_')" />
-		<Touch Files="$(HuskyRoot).husky/_/install.stamp" AlwaysCreate="true" />
-		<Message Text="Stamp updated: $(HuskyRoot).husky/_/install.stamp" Importance="High" />
+		<Touch Files="$(HuskyStampFile)" AlwaysCreate="true" />
+		<Message Text="[HUSKY] Installation complete - stamp created at $(HuskyStampFile)" Importance="High" />
 		<ItemGroup>
-			<FileWrites Include="$(HuskyRoot).husky/_/install.stamp" />
+			<FileWrites Include="$(HuskyStampFile)" />
 		</ItemGroup>
-		<Message Text="==================== HUSKY TARGET END ====================" Importance="High" />
+	</Target>
+
+	<Target Name="HuskyInstallVerification" BeforeTargets="_GenerateRestoreProjectSpec" Condition="'$(HUSKY)' != 0 And Exists('$(HuskyStampFile)')">
+		<Message Text="[HUSKY] Verification: Installation confirmed - Git hooks operational" Importance="High" />
 	</Target>
 </Project>
