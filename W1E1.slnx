@@ -1,11 +1,12 @@
 <Solution>
   <Folder Name="/Itens de Solução/">
+    <File Path="Directory.Build.targets" />
     <File Path="docker-compose.yaml" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="W1E1.Core/W1E1.Core.csproj" />
     <Project Path="W1E1.SqlServer/W1E1.SqlServer.csproj" />
-    <Project Path="W1W1.Extensions/W1W1.Extensions.csproj" Id="19efe482-24fb-4662-931c-1c62ecf7b8ed" />
+    <Project Path="W1W1.Extensions/W1E1.Extensions.csproj" Id="19efe482-24fb-4662-931c-1c62ecf7b8ed" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="W1E1.Tests/W1E1.Tests.csproj" />

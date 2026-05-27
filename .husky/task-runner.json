@@ -1,0 +1,25 @@
+{
+  "$schema": "https://alirezanet.github.io/Husky.Net/schema.json",
+  "tasks": [
+    {
+      "name": "tests",
+      "command": "dotnet",
+      "args": [
+        "msbuild",
+        "W1E1.Tests/W1E1.Tests.csproj",
+        "/t:VSTest"
+      ]
+    },
+    {
+      "name": "commit-message-linter",
+      "command": "dotnet",
+      "args": [
+        "husky",
+        "exec",
+        ".husky/csx/commit-lint.csx",
+        "--args",
+        "${args}"
+      ]
+    }
+  ]
+}
