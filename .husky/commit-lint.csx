@@ -7,9 +7,9 @@ if (Regex.IsMatch(msg, pattern))
    return 0;
 
 Console.ForegroundColor = ConsoleColor.Red;
-Console.Error.WriteLine("Invalid commit message");
+Console.Error.WriteLine("Mensagem de commit inválida\n");
 Console.ResetColor();
-Console.Error.WriteLine("e.g: 'feat(scope): subject' or 'fix: subject'");
+Console.Error.WriteLine("Utilize o padrão: 'feat(scope): subject' ou 'fix: subject\n'");
 Console.ForegroundColor = ConsoleColor.Gray;
 Console.Error.WriteLine("more info: https://www.conventionalcommits.org/en/v1.0.0/");
 
