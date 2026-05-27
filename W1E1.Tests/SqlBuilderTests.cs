@@ -404,79 +404,79 @@ namespace W1E1.Tests
             await Verify(sql, extension: "sql");
         }
 
-        //[Fact]
-        //public async Task Deve_Gerar_Sql_Cte_Com_Pushdown_Final_Com_Agregacao_Sum_Count_E_Where_Apos_Alias()
-        //{
-        //    SqlFilter filtroSaida = new SqlFilter()
-        //        .In("S.Cod_filial", new[] { 110, 120 });
+        [Fact]
+        public async Task Deve_Gerar_Sql_Cte_Com_Pushdown_Final_Com_Agregacao_Sum_Count_E_Where_Apos_Alias()
+        {
+            SqlFilter filtroSaida = new SqlFilter()
+                .In("S.Cod_filial", new[] { 110, 120 });
 
-        //    SqlFilter filtroEntrada = new SqlFilter()
-        //        .In("E.Cod_filial", new[] { 110, 120 });
+            SqlFilter filtroEntrada = new SqlFilter()
+                .In("E.Cod_filial", new[] { 110, 120 });
 
-        //    SqlFilter filtroFinal = new SqlFilter()
-        //        .And("StatusDestino", 1);
+            SqlFilter filtroFinal = new SqlFilter()
+                .And("StatusDestino", 1);
 
-        //    string sql = @"
-        //                WITH base_origem AS (
-        //                    SELECT
-        //                        S.Chave_fato AS ChaveFatoOrigem,
-        //                        S.Cod_filial AS CodFilialOrigem,
-        //                        S.Valor_liquido AS ValorOrigem
-        //                    FROM tbSaidas S
-        //                    WHERE 1=1 {{filtroSaida}}
+            string sql = @"
+                        WITH base_origem AS (
+                            SELECT
+                                S.Chave_fato AS ChaveFatoOrigem,
+                                S.Cod_filial AS CodFilialOrigem,
+                                S.Valor_liquido AS ValorOrigem
+                            FROM tbSaidas S
+                            WHERE 1=1 {{filtroSaida}}
 
-        //                    UNION ALL
+                            UNION ALL
 
-        //                    SELECT
-        //                        E.Chave_fato AS ChaveFatoOrigem,
-        //                        E.Cod_filial AS CodFilialOrigem,
-        //                        E.Valor_liquido AS ValorOrigem
-        //                    FROM tbEntradas E
-        //                    WHERE 1=1 {{filtroEntrada}}
-        //                ),
+                            SELECT
+                                E.Chave_fato AS ChaveFatoOrigem,
+                                E.Cod_filial AS CodFilialOrigem,
+                                E.Valor_liquido AS ValorOrigem
+                            FROM tbEntradas E
+                            WHERE 1=1 {{filtroEntrada}}
+                        ),
 
-        //                base_destino AS (
-        //                    SELECT
-        //                        S.Chave_fato,
-        //                        S.Chave_fato_orig_un
-        //                    FROM tbSaidas S
-        //                    WHERE S.Chave_fato_orig_un IS NOT NULL
-        //                ),
+                        base_destino AS (
+                            SELECT
+                                S.Chave_fato,
+                                S.Chave_fato_orig_un
+                            FROM tbSaidas S
+                            WHERE S.Chave_fato_orig_un IS NOT NULL
+                        ),
 
-        //                final AS (
-        //                    SELECT
-        //                        ORIGEM.ChaveFatoOrigem,
-        //                        ORIGEM.CodFilialOrigem,
-        //                        ORIGEM.ValorOrigem,
-        //                        CASE
-        //                            WHEN DESTINO.Chave_fato IS NOT NULL THEN 1
-        //                            ELSE 0
-        //                        END AS StatusDestino
-        //                    FROM base_origem ORIGEM
-        //                    LEFT JOIN base_destino DESTINO
-        //                        ON DESTINO.Chave_fato_orig_un = ORIGEM.ChaveFatoOrigem
-        //                )
+                        final AS (
+                            SELECT
+                                ORIGEM.ChaveFatoOrigem,
+                                ORIGEM.CodFilialOrigem,
+                                ORIGEM.ValorOrigem,
+                                CASE
+                                    WHEN DESTINO.Chave_fato IS NOT NULL THEN 1
+                                    ELSE 0
+                                END AS StatusDestino
+                            FROM base_origem ORIGEM
+                            LEFT JOIN base_destino DESTINO
+                                ON DESTINO.Chave_fato_orig_un = ORIGEM.ChaveFatoOrigem
+                        )
 
-        //                SELECT
-        //                    ISNULL(SUM(F.ValorOrigem), 0) AS ValorTotalOrigens,
-        //                    COUNT(*) AS TotalDeDocumentosNoLote
-        //                FROM final F
-        //                WHERE 1=1 {{filtroFinal}}
-        //            ";
+                        SELECT
+                            ISNULL(SUM(F.ValorOrigem), 0) AS ValorTotalOrigens,
+                            COUNT(*) AS TotalDeDocumentosNoLote
+                        FROM final F
+                        WHERE 1=1 {{filtroFinal}}
+                    ";
 
-        //    SqlQuery<object> query =
-        //        new SqlQuery<object>(SqlServerProvider.Instance)
-        //            .FromCte(sql)
-        //            .Pushdown("filtroSaida", filtroSaida)
-        //            .Pushdown("filtroEntrada", filtroEntrada)
-        //            .Pushdown("filtroFinal", filtroFinal);
+            SqlQuery<object> query =
+                new SqlQuery<object>(SqlServerProvider.Instance)
+                    .FromCte(sql)
+                    .Pushdown("filtroSaida", filtroSaida)
+                    .Pushdown("filtroEntrada", filtroEntrada)
+                    .Pushdown("filtroFinal", filtroFinal);
 
-        //    string result = query.ToSqlFull();
+            string result = query.ToSqlFull();
 
-        //    SqlAssert.Validate(result);
+            SqlAssert.Validate(result);
 
-        //    await Verify(result, extension: "sql");
-        //}
+            await Verify(result, extension: "sql");
+        }
 
         //[Fact]
         //public async Task Deve_Garantir_Integridade_Do_Pipeline_Complexo_De_Tmv()
