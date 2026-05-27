@@ -1,14 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
 
-  <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.79" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
-  </ItemGroup>
+		<!-- repo root -->
+		<HuskyRoot Condition="'$(HuskyRoot)' == ''">..\</HuskyRoot>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Dapper" Version="2.1.79" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
+	</ItemGroup>
+
+	<Target Name="Husky"
+			AfterTargets="Restore"
+			Condition="'$(HUSKY)' != 0">
+
+		<Exec Command="dotnet tool restore" />
+
+		<Exec Command="dotnet husky install"
+			  WorkingDirectory="$(HuskyRoot)" />
+
+	</Target>
 
 </Project>
