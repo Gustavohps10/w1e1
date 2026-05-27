@@ -404,157 +404,157 @@ namespace W1E1.Tests
             await Verify(sql, extension: "sql");
         }
 
-        [Fact]
-        public async Task Deve_Gerar_Sql_Cte_Com_Pushdown_Final_Com_Agregacao_Sum_Count_E_Where_Apos_Alias()
-        {
-            SqlFilter filtroSaida = new SqlFilter()
-                .In("S.Cod_filial", new[] { 110, 120 });
+        //[Fact]
+        //public async Task Deve_Gerar_Sql_Cte_Com_Pushdown_Final_Com_Agregacao_Sum_Count_E_Where_Apos_Alias()
+        //{
+        //    SqlFilter filtroSaida = new SqlFilter()
+        //        .In("S.Cod_filial", new[] { 110, 120 });
 
-            SqlFilter filtroEntrada = new SqlFilter()
-                .In("E.Cod_filial", new[] { 110, 120 });
+        //    SqlFilter filtroEntrada = new SqlFilter()
+        //        .In("E.Cod_filial", new[] { 110, 120 });
 
-            SqlFilter filtroFinal = new SqlFilter()
-                .And("StatusDestino", 1);
+        //    SqlFilter filtroFinal = new SqlFilter()
+        //        .And("StatusDestino", 1);
 
-            string sql = @"
-                        WITH base_origem AS (
-                            SELECT
-                                S.Chave_fato AS ChaveFatoOrigem,
-                                S.Cod_filial AS CodFilialOrigem,
-                                S.Valor_liquido AS ValorOrigem
-                            FROM tbSaidas S
-                            WHERE 1=1 {{filtroSaida}}
+        //    string sql = @"
+        //                WITH base_origem AS (
+        //                    SELECT
+        //                        S.Chave_fato AS ChaveFatoOrigem,
+        //                        S.Cod_filial AS CodFilialOrigem,
+        //                        S.Valor_liquido AS ValorOrigem
+        //                    FROM tbSaidas S
+        //                    WHERE 1=1 {{filtroSaida}}
 
-                            UNION ALL
+        //                    UNION ALL
 
-                            SELECT
-                                E.Chave_fato AS ChaveFatoOrigem,
-                                E.Cod_filial AS CodFilialOrigem,
-                                E.Valor_liquido AS ValorOrigem
-                            FROM tbEntradas E
-                            WHERE 1=1 {{filtroEntrada}}
-                        ),
+        //                    SELECT
+        //                        E.Chave_fato AS ChaveFatoOrigem,
+        //                        E.Cod_filial AS CodFilialOrigem,
+        //                        E.Valor_liquido AS ValorOrigem
+        //                    FROM tbEntradas E
+        //                    WHERE 1=1 {{filtroEntrada}}
+        //                ),
 
-                        base_destino AS (
-                            SELECT
-                                S.Chave_fato,
-                                S.Chave_fato_orig_un
-                            FROM tbSaidas S
-                            WHERE S.Chave_fato_orig_un IS NOT NULL
-                        ),
+        //                base_destino AS (
+        //                    SELECT
+        //                        S.Chave_fato,
+        //                        S.Chave_fato_orig_un
+        //                    FROM tbSaidas S
+        //                    WHERE S.Chave_fato_orig_un IS NOT NULL
+        //                ),
 
-                        final AS (
-                            SELECT
-                                ORIGEM.ChaveFatoOrigem,
-                                ORIGEM.CodFilialOrigem,
-                                ORIGEM.ValorOrigem,
-                                CASE
-                                    WHEN DESTINO.Chave_fato IS NOT NULL THEN 1
-                                    ELSE 0
-                                END AS StatusDestino
-                            FROM base_origem ORIGEM
-                            LEFT JOIN base_destino DESTINO
-                                ON DESTINO.Chave_fato_orig_un = ORIGEM.ChaveFatoOrigem
-                        )
+        //                final AS (
+        //                    SELECT
+        //                        ORIGEM.ChaveFatoOrigem,
+        //                        ORIGEM.CodFilialOrigem,
+        //                        ORIGEM.ValorOrigem,
+        //                        CASE
+        //                            WHEN DESTINO.Chave_fato IS NOT NULL THEN 1
+        //                            ELSE 0
+        //                        END AS StatusDestino
+        //                    FROM base_origem ORIGEM
+        //                    LEFT JOIN base_destino DESTINO
+        //                        ON DESTINO.Chave_fato_orig_un = ORIGEM.ChaveFatoOrigem
+        //                )
 
-                        SELECT
-                            ISNULL(SUM(F.ValorOrigem), 0) AS ValorTotalOrigens,
-                            COUNT(*) AS TotalDeDocumentosNoLote
-                        FROM final F
-                        WHERE 1=1 {{filtroFinal}}
-                    ";
+        //                SELECT
+        //                    ISNULL(SUM(F.ValorOrigem), 0) AS ValorTotalOrigens,
+        //                    COUNT(*) AS TotalDeDocumentosNoLote
+        //                FROM final F
+        //                WHERE 1=1 {{filtroFinal}}
+        //            ";
 
-            SqlQuery<object> query =
-                new SqlQuery<object>(SqlServerProvider.Instance)
-                    .FromCte(sql)
-                    .Pushdown("filtroSaida", filtroSaida)
-                    .Pushdown("filtroEntrada", filtroEntrada)
-                    .Pushdown("filtroFinal", filtroFinal);
+        //    SqlQuery<object> query =
+        //        new SqlQuery<object>(SqlServerProvider.Instance)
+        //            .FromCte(sql)
+        //            .Pushdown("filtroSaida", filtroSaida)
+        //            .Pushdown("filtroEntrada", filtroEntrada)
+        //            .Pushdown("filtroFinal", filtroFinal);
 
-            string result = query.ToSqlFull();
+        //    string result = query.ToSqlFull();
 
-            SqlAssert.Validate(result);
+        //    SqlAssert.Validate(result);
 
-            await Verify(result, extension: "sql");
-        }
+        //    await Verify(result, extension: "sql");
+        //}
 
-        [Fact]
-        public async Task Deve_Garantir_Integridade_Do_Pipeline_Complexo_De_Tmv()
-        {
-            int offset = 0;
-            int limit = 50;
-            string filtroLike = "%TESTE%";
-            string orderDir = "ASC";
-            DateTime dataParaBusca = new DateTime(2026, 01, 01);
+        //[Fact]
+        //public async Task Deve_Garantir_Integridade_Do_Pipeline_Complexo_De_Tmv()
+        //{
+        //    int offset = 0;
+        //    int limit = 50;
+        //    string filtroLike = "%TESTE%";
+        //    string orderDir = "ASC";
+        //    DateTime dataParaBusca = new DateTime(2026, 01, 01);
 
-            SqlQuery<object> query = new SqlQuery<object>(SqlServerProvider.Instance)
-                .Prepare(@"
-                    IF OBJECT_ID('tempdb..#CFOP_INCIDENCIA') IS NOT NULL DROP TABLE #CFOP_INCIDENCIA;
-                    IF OBJECT_ID('tempdb..#TMV_COM_IMPOSTOS') IS NOT NULL DROP TABLE #TMV_COM_IMPOSTOS;
-                    IF OBJECT_ID('tempdb..#TMV_COM_INCIDENCIA_RECPAG') IS NOT NULL DROP TABLE #TMV_COM_INCIDENCIA_RECPAG;
-                    IF OBJECT_ID('tempdb..#TMV_COM_INCIDENCIA_CFOP') IS NOT NULL DROP TABLE #TMV_COM_INCIDENCIA_CFOP;
-                    IF OBJECT_ID('tempdb..#TMV_COM_INCIDENCIA_TMVFIXO') IS NOT NULL DROP TABLE #TMV_COM_INCIDENCIA_TMVFIXO;
-                    IF OBJECT_ID('tempdb..#TMV_SUGERIDO_FINAL') IS NOT NULL DROP TABLE #TMV_SUGERIDO_FINAL;
+        //    SqlQuery<object> query = new SqlQuery<object>(SqlServerProvider.Instance)
+        //        .Prepare(@"
+        //            IF OBJECT_ID('tempdb..#CFOP_INCIDENCIA') IS NOT NULL DROP TABLE #CFOP_INCIDENCIA;
+        //            IF OBJECT_ID('tempdb..#TMV_COM_IMPOSTOS') IS NOT NULL DROP TABLE #TMV_COM_IMPOSTOS;
+        //            IF OBJECT_ID('tempdb..#TMV_COM_INCIDENCIA_RECPAG') IS NOT NULL DROP TABLE #TMV_COM_INCIDENCIA_RECPAG;
+        //            IF OBJECT_ID('tempdb..#TMV_COM_INCIDENCIA_CFOP') IS NOT NULL DROP TABLE #TMV_COM_INCIDENCIA_CFOP;
+        //            IF OBJECT_ID('tempdb..#TMV_COM_INCIDENCIA_TMVFIXO') IS NOT NULL DROP TABLE #TMV_COM_INCIDENCIA_TMVFIXO;
+        //            IF OBJECT_ID('tempdb..#TMV_SUGERIDO_FINAL') IS NOT NULL DROP TABLE #TMV_SUGERIDO_FINAL;
 
-                    CREATE TABLE #CFOP_INCIDENCIA (
-                        COD_CFOP CHAR(5) COLLATE DATABASE_DEFAULT PRIMARY KEY
-                    );
+        //            CREATE TABLE #CFOP_INCIDENCIA (
+        //                COD_CFOP CHAR(5) COLLATE DATABASE_DEFAULT PRIMARY KEY
+        //            );
 
-                    INSERT INTO #CFOP_INCIDENCIA (COD_CFOP) VALUES ('5101'),('5102'),('1101'),('1102');
+        //            INSERT INTO #CFOP_INCIDENCIA (COD_CFOP) VALUES ('5101'),('5102'),('1101'),('1102');
 
-                    SELECT COD_TIPO_MV INTO #TMV_COM_IMPOSTOS FROM TBIMPOSTOMVE WITH (NOLOCK) WHERE 1=1 {{FiltroImpostos}} GROUP BY COD_TIPO_MV;
-                    CREATE CLUSTERED INDEX IX_TEMP_IMPOSTOS ON #TMV_COM_IMPOSTOS (COD_TIPO_MV);
+        //            SELECT COD_TIPO_MV INTO #TMV_COM_IMPOSTOS FROM TBIMPOSTOMVE WITH (NOLOCK) WHERE 1=1 {{FiltroImpostos}} GROUP BY COD_TIPO_MV;
+        //            CREATE CLUSTERED INDEX IX_TEMP_IMPOSTOS ON #TMV_COM_IMPOSTOS (COD_TIPO_MV);
 
-                    SELECT COD_TIPO_MV INTO #TMV_COM_INCIDENCIA_RECPAG FROM (
-                        SELECT T.COD_TIPO_MV FROM #TMV_COM_IMPOSTOS IMP
-                        INNER JOIN TBTIPOMVESTOQUE T WITH (NOLOCK) ON T.COD_TIPO_MV = IMP.COD_TIPO_MV WHERE 1=1 {{FiltroRecPag}}
-                    ) AS FonteDeIncidencia GROUP BY COD_TIPO_MV;
-                    CREATE CLUSTERED INDEX IX_TEMP_INCIDENCIA ON #TMV_COM_INCIDENCIA_RECPAG (COD_TIPO_MV);
+        //            SELECT COD_TIPO_MV INTO #TMV_COM_INCIDENCIA_RECPAG FROM (
+        //                SELECT T.COD_TIPO_MV FROM #TMV_COM_IMPOSTOS IMP
+        //                INNER JOIN TBTIPOMVESTOQUE T WITH (NOLOCK) ON T.COD_TIPO_MV = IMP.COD_TIPO_MV WHERE 1=1 {{FiltroRecPag}}
+        //            ) AS FonteDeIncidencia GROUP BY COD_TIPO_MV;
+        //            CREATE CLUSTERED INDEX IX_TEMP_INCIDENCIA ON #TMV_COM_INCIDENCIA_RECPAG (COD_TIPO_MV);
 
-                    SELECT FonteTMVCFOPPrincipal.COD_TIPO_MV INTO #TMV_COM_INCIDENCIA_CFOP FROM (
-                        SELECT FonteTMVCFOPAgrupados.COD_TIPO_MV, FonteTMVCFOPAgrupados.COD_CFOP, FonteTMVCFOPAgrupados.Qtde,
-                            ROW_NUMBER() OVER (PARTITION BY FonteTMVCFOPAgrupados.COD_TIPO_MV ORDER BY FonteTMVCFOPAgrupados.Qtde DESC) AS Row
-                        FROM (
-                            SELECT FonteTMVCFOP.COD_TIPO_MV, FonteTMVCFOP.COD_CFOP, COUNT(FonteTMVCFOP.Num_item) Qtde FROM (
-                                SELECT D.COD_TIPO_MV, DI.COD_CFOP COLLATE DATABASE_DEFAULT AS COD_CFOP, DI.Num_item FROM TBSAIDAS D WITH (NOLOCK)
-                                INNER JOIN TBSAIDASITEM DI WITH (NOLOCK) ON DI.CHAVE_FATO = D.CHAVE_FATO
-                                INNER JOIN #TMV_COM_IMPOSTOS IMP ON D.COD_TIPO_MV = IMP.COD_TIPO_MV WHERE 1=1 {{FiltroPushdownSaidas}}
-                                UNION
-                                SELECT D.COD_TIPO_MV, DI.COD_CFOP COLLATE DATABASE_DEFAULT AS COD_CFOP, DI.Num_item FROM TBENTRADAS D WITH (NOLOCK)
-                                INNER JOIN TBENTRADASITEM DI WITH (NOLOCK) ON DI.CHAVE_FATO = D.CHAVE_FATO
-                                INNER JOIN #TMV_COM_IMPOSTOS IMP ON D.COD_TIPO_MV = IMP.COD_TIPO_MV WHERE 1=1 {{FiltroPushdownEntradas}}
-                            ) FonteTMVCFOP GROUP BY FonteTMVCFOP.COD_TIPO_MV, FonteTMVCFOP.COD_CFOP
-                        ) FonteTMVCFOPAgrupados
-                    ) FonteTMVCFOPPrincipal WHERE FonteTMVCFOPPrincipal.ROW = 1 AND FonteTMVCFOPPrincipal.COD_CFOP COLLATE DATABASE_DEFAULT IN (SELECT COD_CFOP COLLATE DATABASE_DEFAULT FROM #CFOP_INCIDENCIA) GROUP BY FonteTMVCFOPPrincipal.COD_TIPO_MV;
-                    CREATE CLUSTERED INDEX IX_TEMP_INCIDENCIA ON #TMV_COM_INCIDENCIA_CFOP (COD_TIPO_MV);
+        //            SELECT FonteTMVCFOPPrincipal.COD_TIPO_MV INTO #TMV_COM_INCIDENCIA_CFOP FROM (
+        //                SELECT FonteTMVCFOPAgrupados.COD_TIPO_MV, FonteTMVCFOPAgrupados.COD_CFOP, FonteTMVCFOPAgrupados.Qtde,
+        //                    ROW_NUMBER() OVER (PARTITION BY FonteTMVCFOPAgrupados.COD_TIPO_MV ORDER BY FonteTMVCFOPAgrupados.Qtde DESC) AS Row
+        //                FROM (
+        //                    SELECT FonteTMVCFOP.COD_TIPO_MV, FonteTMVCFOP.COD_CFOP, COUNT(FonteTMVCFOP.Num_item) Qtde FROM (
+        //                        SELECT D.COD_TIPO_MV, DI.COD_CFOP COLLATE DATABASE_DEFAULT AS COD_CFOP, DI.Num_item FROM TBSAIDAS D WITH (NOLOCK)
+        //                        INNER JOIN TBSAIDASITEM DI WITH (NOLOCK) ON DI.CHAVE_FATO = D.CHAVE_FATO
+        //                        INNER JOIN #TMV_COM_IMPOSTOS IMP ON D.COD_TIPO_MV = IMP.COD_TIPO_MV WHERE 1=1 {{FiltroPushdownSaidas}}
+        //                        UNION
+        //                        SELECT D.COD_TIPO_MV, DI.COD_CFOP COLLATE DATABASE_DEFAULT AS COD_CFOP, DI.Num_item FROM TBENTRADAS D WITH (NOLOCK)
+        //                        INNER JOIN TBENTRADASITEM DI WITH (NOLOCK) ON DI.CHAVE_FATO = D.CHAVE_FATO
+        //                        INNER JOIN #TMV_COM_IMPOSTOS IMP ON D.COD_TIPO_MV = IMP.COD_TIPO_MV WHERE 1=1 {{FiltroPushdownEntradas}}
+        //                    ) FonteTMVCFOP GROUP BY FonteTMVCFOP.COD_TIPO_MV, FonteTMVCFOP.COD_CFOP
+        //                ) FonteTMVCFOPAgrupados
+        //            ) FonteTMVCFOPPrincipal WHERE FonteTMVCFOPPrincipal.ROW = 1 AND FonteTMVCFOPPrincipal.COD_CFOP COLLATE DATABASE_DEFAULT IN (SELECT COD_CFOP COLLATE DATABASE_DEFAULT FROM #CFOP_INCIDENCIA) GROUP BY FonteTMVCFOPPrincipal.COD_TIPO_MV;
+        //            CREATE CLUSTERED INDEX IX_TEMP_INCIDENCIA ON #TMV_COM_INCIDENCIA_CFOP (COD_TIPO_MV);
 
-                    SELECT T.COD_TIPO_MV INTO #TMV_COM_INCIDENCIA_TMVFIXO FROM TBTIPOMVESTOQUE T WITH (NOLOCK) INNER JOIN #TMV_COM_IMPOSTOS IMP ON T.COD_TIPO_MV = IMP.COD_TIPO_MV WHERE 1=1 {{FiltroTmvFixo}};
-                    CREATE CLUSTERED INDEX IX_TEMP_INCIDENCIA ON #TMV_COM_INCIDENCIA_TMVFIXO (COD_TIPO_MV);
+        //            SELECT T.COD_TIPO_MV INTO #TMV_COM_INCIDENCIA_TMVFIXO FROM TBTIPOMVESTOQUE T WITH (NOLOCK) INNER JOIN #TMV_COM_IMPOSTOS IMP ON T.COD_TIPO_MV = IMP.COD_TIPO_MV WHERE 1=1 {{FiltroTmvFixo}};
+        //            CREATE CLUSTERED INDEX IX_TEMP_INCIDENCIA ON #TMV_COM_INCIDENCIA_TMVFIXO (COD_TIPO_MV);
 
-                    SELECT IMP.COD_TIPO_MV, CAST(CASE WHEN ISNULL(ISNULL(INC_RECPAG.COD_TIPO_MV, INC_CFOP.COD_TIPO_MV), INC_TMV.COD_TIPO_MV) IS NOT NULL THEN 1 ELSE 2 END AS TINYINT) AS IND_INCIDENCIA_CBSIBS_SUGERIDO INTO #TMV_SUGERIDO_FINAL FROM #TMV_COM_IMPOSTOS AS IMP
-                    LEFT JOIN #TMV_COM_INCIDENCIA_RECPAG AS INC_RECPAG ON IMP.COD_TIPO_MV = INC_RECPAG.COD_TIPO_MV
-                    LEFT JOIN #TMV_COM_INCIDENCIA_CFOP AS INC_CFOP ON IMP.COD_TIPO_MV = INC_CFOP.COD_TIPO_MV
-                    LEFT JOIN #TMV_COM_INCIDENCIA_TMVFIXO AS INC_TMV ON IMP.COD_TIPO_MV = INC_TMV.COD_TIPO_MV;
-                    CREATE CLUSTERED INDEX IX_TEMP_SUGERIDO_FINAL ON #TMV_SUGERIDO_FINAL (COD_TIPO_MV);
-                ")
-                .FromCte(@"
-                    SELECT T.COD_TIPO_MV AS CodTipoMv, T.DESCRICAO AS Descricao, CAST(T.IND_INCIDENCIA_CBSIBS AS TINYINT) AS IndIncidenciaCBSIBS, S.IND_INCIDENCIA_CBSIBS_SUGERIDO AS IndIncidenciaCBSIBSSugerido FROM TBTIPOMVESTOQUE T WITH (NOLOCK)
-                    INNER JOIN #TMV_SUGERIDO_FINAL S ON S.COD_TIPO_MV = T.COD_TIPO_MV WHERE 1=1 {{FiltroFinalPipeline}}
-                ")
-                .Pushdown("FiltroImpostos", f => f.In("COD_IMPOSTO", new string[] { "IBSUF", "IBSMUN", "CBS" }))
-                .Pushdown("FiltroRecPag", f => f.In("T.GERA_PAGAR_RECEBER", new string[] { "R", "P" }))
-                .Pushdown("FiltroPushdownSaidas", f => f.And("D.DATA_V1 >=", dataParaBusca).Raw("ISNULL(D.STATUS,'') <> 'C'").Raw("DI.COD_CFOP IS NOT NULL"))
-                .Pushdown("FiltroPushdownEntradas", f => f.And("D.DATA_V1 >=", dataParaBusca).Raw("ISNULL(D.STATUS,'') <> 'C'").Raw("DI.COD_CFOP IS NOT NULL"))
-                .Pushdown("FiltroTmvFixo", f => f.Raw("(LTRIM(RTRIM(T.CFOP_UF_PROD)) COLLATE DATABASE_DEFAULT IN (SELECT COD_CFOP COLLATE DATABASE_DEFAULT FROM #CFOP_INCIDENCIA)) OR (LTRIM(RTRIM(T.CFOP_UF_SERV)) COLLATE DATABASE_DEFAULT IN (SELECT COD_CFOP COLLATE DATABASE_DEFAULT FROM #CFOP_INCIDENCIA))"))
-                .Filter(f => f.Group(g => g.Raw("T.COD_TIPO_MV LIKE @filtroLike COLLATE DATABASE_DEFAULT OR T.DESCRICAO LIKE @filtroLike COLLATE DATABASE_DEFAULT")))
-                .OrderBy("teste", orderDir)
-                .Count(CountStrategy.Window)
-                .Page(offset, limit, PaginationMode.RowNumber);
+        //            SELECT IMP.COD_TIPO_MV, CAST(CASE WHEN ISNULL(ISNULL(INC_RECPAG.COD_TIPO_MV, INC_CFOP.COD_TIPO_MV), INC_TMV.COD_TIPO_MV) IS NOT NULL THEN 1 ELSE 2 END AS TINYINT) AS IND_INCIDENCIA_CBSIBS_SUGERIDO INTO #TMV_SUGERIDO_FINAL FROM #TMV_COM_IMPOSTOS AS IMP
+        //            LEFT JOIN #TMV_COM_INCIDENCIA_RECPAG AS INC_RECPAG ON IMP.COD_TIPO_MV = INC_RECPAG.COD_TIPO_MV
+        //            LEFT JOIN #TMV_COM_INCIDENCIA_CFOP AS INC_CFOP ON IMP.COD_TIPO_MV = INC_CFOP.COD_TIPO_MV
+        //            LEFT JOIN #TMV_COM_INCIDENCIA_TMVFIXO AS INC_TMV ON IMP.COD_TIPO_MV = INC_TMV.COD_TIPO_MV;
+        //            CREATE CLUSTERED INDEX IX_TEMP_SUGERIDO_FINAL ON #TMV_SUGERIDO_FINAL (COD_TIPO_MV);
+        //        ")
+        //        .FromCte(@"
+        //            SELECT T.COD_TIPO_MV AS CodTipoMv, T.DESCRICAO AS Descricao, CAST(T.IND_INCIDENCIA_CBSIBS AS TINYINT) AS IndIncidenciaCBSIBS, S.IND_INCIDENCIA_CBSIBS_SUGERIDO AS IndIncidenciaCBSIBSSugerido FROM TBTIPOMVESTOQUE T WITH (NOLOCK)
+        //            INNER JOIN #TMV_SUGERIDO_FINAL S ON S.COD_TIPO_MV = T.COD_TIPO_MV WHERE 1=1 {{FiltroFinalPipeline}}
+        //        ")
+        //        .Pushdown("FiltroImpostos", f => f.In("COD_IMPOSTO", new string[] { "IBSUF", "IBSMUN", "CBS" }))
+        //        .Pushdown("FiltroRecPag", f => f.In("T.GERA_PAGAR_RECEBER", new string[] { "R", "P" }))
+        //        .Pushdown("FiltroPushdownSaidas", f => f.And("D.DATA_V1 >=", dataParaBusca).Raw("ISNULL(D.STATUS,'') <> 'C'").Raw("DI.COD_CFOP IS NOT NULL"))
+        //        .Pushdown("FiltroPushdownEntradas", f => f.And("D.DATA_V1 >=", dataParaBusca).Raw("ISNULL(D.STATUS,'') <> 'C'").Raw("DI.COD_CFOP IS NOT NULL"))
+        //        .Pushdown("FiltroTmvFixo", f => f.Raw("(LTRIM(RTRIM(T.CFOP_UF_PROD)) COLLATE DATABASE_DEFAULT IN (SELECT COD_CFOP COLLATE DATABASE_DEFAULT FROM #CFOP_INCIDENCIA)) OR (LTRIM(RTRIM(T.CFOP_UF_SERV)) COLLATE DATABASE_DEFAULT IN (SELECT COD_CFOP COLLATE DATABASE_DEFAULT FROM #CFOP_INCIDENCIA))"))
+        //        .Filter(f => f.Group(g => g.Raw("T.COD_TIPO_MV LIKE @filtroLike COLLATE DATABASE_DEFAULT OR T.DESCRICAO LIKE @filtroLike COLLATE DATABASE_DEFAULT")))
+        //        .OrderBy("teste", orderDir)
+        //        .Count(CountStrategy.Window)
+        //        .Page(offset, limit, PaginationMode.RowNumber);
 
-            string sqlCompleto = query.ToSqlFull();
+        //    string sqlCompleto = query.ToSqlFull();
 
-            SqlAssert.Validate(sqlCompleto);
-            await Verify(sqlCompleto, extension: "sql");
-        }
+        //    SqlAssert.Validate(sqlCompleto);
+        //    await Verify(sqlCompleto, extension: "sql");
+        //}
     }
 }

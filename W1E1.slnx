@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/Itens de Solução/">
+    <File Path="commit-lint.csx" />
     <File Path="Directory.Build.targets" />
     <File Path="docker-compose.yaml" />
   </Folder>
