@@ -3,7 +3,7 @@
     <File Path="docker-compose.yaml" />
     <File Path="dotnet-tools.json" />
     <File Path=".gitignore" />
-    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Build.props" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="W1E1.Core/W1E1.Core.csproj" />
