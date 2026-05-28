@@ -483,3 +483,4 @@ $RECYCLE.BIN/
 
 !*.csx
 !.husky/
+.husky/_/
