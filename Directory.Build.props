@@ -1,0 +1,32 @@
+﻿<Project>
+	<PropertyGroup>
+		<HuskyRoot Condition="'$(HuskyRoot)' == ''">$(MSBuildThisFileDirectory)</HuskyRoot>
+		<W1E1AutomationStampFile Condition="'$(W1E1AutomationStampFile)' == ''">$(HuskyRoot).w1e1-automation-stamp</W1E1AutomationStampFile>
+	</PropertyGroup>
+
+	<Target Name="HuskyInstallOnSolutionOpen" 
+			BeforeTargets="CollectPackageReferences;BeforeBuild" 
+			Condition="!Exists('$(W1E1AutomationStampFile)') And '$(HUSKY)' != '0'">
+
+		<Exec Command="dotnet tool restore" 
+			  WorkingDirectory="$(HuskyRoot)" 
+			  StandardOutputImportance="Low" 
+			  StandardErrorImportance="Low" 
+			  IgnoreExitCode="true" />
+
+		<Exec Command="dotnet husky install" 
+			  WorkingDirectory="$(HuskyRoot)" 
+			  StandardOutputImportance="Low" 
+			  StandardErrorImportance="Low" 
+			  IgnoreExitCode="true" />
+
+		<Exec Command="git config core.hooksPath .husky" 
+			  WorkingDirectory="$(HuskyRoot)" 
+			  StandardOutputImportance="Low" 
+			  StandardErrorImportance="Low" 
+			  IgnoreExitCode="true" />
+
+		<Touch Files="$(W1E1AutomationStampFile)" 
+			   AlwaysCreate="true" />
+	</Target>
+</Project>
