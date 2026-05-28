@@ -1,10 +1,9 @@
 <Solution>
   <Folder Name="/Itens de Solução/">
-    <File Path="after.W1E1.sln.targets" />
     <File Path="docker-compose.yaml" />
-    <File Path="Directory.Build.targets" />
     <File Path="dotnet-tools.json" />
     <File Path=".gitignore" />
+    <File Path="Directory.Build.targets" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="W1E1.Core/W1E1.Core.csproj" />

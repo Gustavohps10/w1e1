@@ -484,3 +484,6 @@ $RECYCLE.BIN/
 !*.csx
 !.husky/
 .husky/_/
+
+# W1E1 Automation
+.w1e1-automation-stamp

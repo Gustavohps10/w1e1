@@ -1,3 +1,44 @@
-﻿<Project>
-<!-- Husky automation is now handled in after.W1E1.sln.targets for IDE restore flow -->
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+	<PropertyGroup>
+		<W1E1RepoRoot Condition="'$(W1E1RepoRoot)' == ''">$(MSBuildThisFileDirectory)</W1E1RepoRoot>
+		<W1E1AutomationStampFile Condition="'$(W1E1AutomationStampFile)' == ''">$(W1E1RepoRoot).w1e1-automation-stamp</W1E1AutomationStampFile>
+		<W1E1AutomationDisabled Condition="'$(HUSKY)' == '0' Or '$(CI)' == 'true' Or '$(TF_BUILD)' == 'true' Or '$(GITHUB_ACTIONS)' == 'true'">true</W1E1AutomationDisabled>
+	</PropertyGroup>
+
+	<Target Name="HuskyInstallOnRestore"
+			BeforeTargets="Restore;CollectPackageReferences"
+			Condition="'$(W1E1AutomationDisabled)' != 'true' And !Exists('$(W1E1AutomationStampFile)') And '$(DesignTimeBuild)' != 'true'">
+
+		<Message Text="[W1E1] Inicializando Husky..." Importance="high" />
+
+		<Exec Command="dotnet tool restore"
+			  WorkingDirectory="$(W1E1RepoRoot)"
+			  StandardOutputImportance="low"
+			  StandardErrorImportance="high"
+			  IgnoreExitCode="true"
+			  EchoOff="true" />
+
+		<Exec Command="dotnet husky install"
+			  WorkingDirectory="$(W1E1RepoRoot)"
+			  StandardOutputImportance="low"
+			  StandardErrorImportance="high"
+			  IgnoreExitCode="true"
+			  EchoOff="true" />
+
+		<Exec Command="git config core.hooksPath .husky"
+			  WorkingDirectory="$(W1E1RepoRoot)"
+			  StandardOutputImportance="low"
+			  StandardErrorImportance="low"
+			  IgnoreExitCode="true"
+			  EchoOff="true" />
+
+		<Touch Files="$(W1E1AutomationStampFile)" AlwaysCreate="true" />
+
+		<Message Text="[W1E1] Husky inicializado!" Importance="high" />
+	</Target>
+
+	<Target Name="CleanHuskyStampFile" BeforeTargets="Clean">
+		<Delete Files="$(W1E1AutomationStampFile)" TreatErrorsAsWarnings="true" />
+	</Target>
 </Project>
