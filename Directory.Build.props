@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <!-- Husky.Net initialization during initial IDE load and restore -->
+  <!-- This runs once per solution session to ensure git hooks are installed -->
+
+  <PropertyGroup>
+	<HuskyInitialized Condition="'$(HuskyInitialized)' == ''">false</HuskyInitialized>
+	<HuskyStampFile Condition="'$(HuskyStampFile)' == ''">$(MSBuildThisFileDirectory).husky\_\restore.stamp</HuskyStampFile>
+  </PropertyGroup>
+
+  <!-- Run on first project load if Husky hasn't been initialized in this session -->
+  <Target Name="EnsureHuskyInstalled"
+		  BeforeTargets="Build;Restore"
+		  Condition="'$(HuskyInitialized)' == 'false' AND '$(DesignTimeBuild)' != 'true'">
+
+	<PropertyGroup>
+	  <HuskyInitialized>true</HuskyInitialized>
+	</PropertyGroup>
+
+	<Message Text="[HUSKY] Ensuring git hooks are installed..." Importance="High" />
+
+	<!-- Restore dotnet tools -->
+	<Exec Command="dotnet tool restore"
+		  WorkingDirectory="$(MSBuildThisFileDirectory)"
+		  IgnoreExitCode="true"
+		  ContinueOnError="true" />
+
+	<!-- Install Husky hooks -->
+	<Exec Command="dotnet husky install"
+		  WorkingDirectory="$(MSBuildThisFileDirectory)"
+		  IgnoreExitCode="true"
+		  ContinueOnError="true" />
+
+	<!-- Ensure git hooks path is configured -->
+	<Exec Command="git config core.hooksPath .husky"
+		  WorkingDirectory="$(MSBuildThisFileDirectory)"
+		  IgnoreExitCode="true"
+		  ContinueOnError="true" />
+
+	<Message Text="[HUSKY] Git hooks ready!" Importance="High" />
+  </Target>
+</Project>
