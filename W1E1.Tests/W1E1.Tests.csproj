@@ -5,8 +5,6 @@
 		<Nullable>enable</Nullable>
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
-		<HuskyRoot Condition="'$(HuskyRoot)' == ''">..\ </HuskyRoot>
-		<HuskyStampFile>$(HuskyRoot).husky/_/install.stamp</HuskyStampFile>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -26,28 +24,4 @@
 	<ItemGroup>
 		<Using Include="Xunit" />
 	</ItemGroup>
-
-	<Target Name="HuskyAutomationDetect" BeforeTargets="_GenerateRestoreProjectSpec" Condition="'$(HUSKY)' != 0">
-		<Message Text="[HUSKY] Intercepting MSBuild evaluation - Restore specification generation phase" Importance="High" />
-		<Message Text="[HUSKY] Detection context: HuskyRoot=$(HuskyRoot)" Importance="High" />
-	</Target>
-
-	<Target Name="HuskyInstallAutomation" BeforeTargets="_GenerateRestoreProjectSpec" Condition="'$(HUSKY)' != 0 And !Exists('$(HuskyStampFile)')">
-		<Message Text="[HUSKY] CRITICAL: Installation stamp missing - triggering tool restore and Git hook installation" Importance="High" />
-		<Message Text="[HUSKY] Target missing: $(HuskyStampFile)" Importance="High" />
-		<Exec Command="dotnet tool restore" StandardOutputImportance="High" StandardErrorImportance="High" />
-		<Message Text="[HUSKY] Local tools restored" Importance="High" />
-		<Exec Command="dotnet husky install" StandardOutputImportance="High" StandardErrorImportance="High" WorkingDirectory="$(HuskyRoot)" />
-		<Message Text="[HUSKY] Git hooks installed successfully" Importance="High" />
-		<MakeDir Directories="$(HuskyRoot).husky\_" Condition="!Exists('$(HuskyRoot).husky\_')" />
-		<Touch Files="$(HuskyStampFile)" AlwaysCreate="true" />
-		<Message Text="[HUSKY] Installation complete - stamp created at $(HuskyStampFile)" Importance="High" />
-		<ItemGroup>
-			<FileWrites Include="$(HuskyStampFile)" />
-		</ItemGroup>
-	</Target>
-
-	<Target Name="HuskyInstallVerification" BeforeTargets="_GenerateRestoreProjectSpec" Condition="'$(HUSKY)' != 0 And Exists('$(HuskyStampFile)')">
-		<Message Text="[HUSKY] Verification: Installation confirmed - Git hooks operational" Importance="High" />
-	</Target>
 </Project>

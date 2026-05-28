@@ -1,0 +1,19 @@
+﻿<Project>
+<!-- Husky automation for automatic installation after clone and pull -->
+<PropertyGroup>
+<HuskyRoot Condition="'$(HuskyRoot)' == ''">$(MSBuildThisFileDirectory)</HuskyRoot>
+<HuskyInstallStamp>$(HuskyRoot).husky/_/install.stamp</HuskyInstallStamp>
+</PropertyGroup>
+
+<!-- Intercept the restore process at NuGet evaluation phase -->
+<!-- Only runs if the install.stamp doesn't exist, preventing multiple executions -->
+<Target Name="HuskyInstall" BeforeTargets="_GenerateRestoreProjectSpec" Condition="'$(HUSKY)' != 0 AND !Exists('$(HuskyInstallStamp)')">
+<Message Text="[HUSKY] Installing git hooks..." Importance="High" />
+<Exec Command="dotnet tool restore" StandardOutputImportance="Low" StandardErrorImportance="High" WorkingDirectory="$(HuskyRoot)" IgnoreExitCode="true" />
+<Exec Command="dotnet husky install" StandardOutputImportance="Low" StandardErrorImportance="High" WorkingDirectory="$(HuskyRoot)" IgnoreExitCode="true" />
+<Exec Command="git config core.hooksPath .husky" StandardOutputImportance="Low" StandardErrorImportance="Low" WorkingDirectory="$(HuskyRoot)" IgnoreExitCode="true" />
+<MakeDir Directories="$(HuskyRoot).husky/_" Condition="!Exists('$(HuskyRoot).husky/_')" />
+<Touch Files="$(HuskyInstallStamp)" AlwaysCreate="true" />
+<Message Text="[HUSKY] Git hooks installed successfully" Importance="High" />
+</Target>
+</Project>
