@@ -139,11 +139,8 @@ Exemplos:
 
 ```csharp
 .Where("Q.StatusDestino", 0)
-
 .And("Q.DataMovto >=", dataInicial)
-
 .And("Q.TipoDocumento IN", tipos)
-
 .And("ISNULL(Q.StatusDestino,0)=0")
 ```
 
@@ -158,11 +155,9 @@ Exemplo:
 ```csharp
 .Filter(f => f
     .Where("Q.StatusDestino", 0)
-
     .And(group => group
         .Where("Q.CodFilial", "110")
         .Or("Q.CodFilial", "120"))
-
     .And(group => group
         .Where("Q.NumDoctoOrigem >", 4)
         .Or("Q.NumDoctoOrigem", 60922))
@@ -245,36 +240,23 @@ SqlQuery<DTO> query =
             SELECT *
             FROM origem Q
         ")
-
         .Pushdown("FiltroMovimento", filtroMovimento)
-
         .Filter(f => f
-
             .Where("Q.StatusDestino", 0)
-
             .And(group => group
                 .Where("Q.CodFilial", "110")
                 .Or("Q.CodFilial", "120"))
-
             .And(group => group
                 .Where("Q.NumDoctoOrigem >", 1000)
                 .Or("Q.NumDoctoOrigem", 4))
-
             .And("Q.TipoDocumento IN", tipos)
-
             .And("Q.DataMovto >=", dataInicial)
-
             .And("Q.DataMovto <=", dataFinal)
-
             .And("ISNULL(Q.StatusDestino,0)=0")
         )
-
         .Sort("Q.ChaveFatoOrigem", "DESC")
-
         .Count(CountStrategy.Window)
-
         .Page(0, 50, PaginationMode.RowNumber);
-
 string sql = query.ToSqlFull();
 ```
 
