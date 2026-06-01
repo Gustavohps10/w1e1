@@ -439,7 +439,7 @@ namespace W1E1.Core
         {
             if (val is null || val == DBNull.Value) return "NULL";
 
-            if (val is byte || val is sbyte || val is short || val is ushort || val is int || val is uint || val is long || val is ulong || val is float || val is double || val is decimal)
+            if (val is byte or sbyte || val is short || val is ushort || val is int || val is uint || val is long || val is ulong || val is float || val is double || val is decimal)
                 return Convert.ToString(val, System.Globalization.CultureInfo.InvariantCulture) ?? "NULL";
 
             if (val is bool b) return b ? "1" : "0";

@@ -1,9 +1,15 @@
 <Solution>
   <Folder Name="/Itens de Solução/">
-    <File Path="docker-compose.yaml" />
     <File Path="dotnet-tools.json" />
     <File Path=".gitignore" />
     <File Path="Directory.Build.props" />
+  </Folder>
+  <Folder Name="/Itens de Solução/.devcontainer/">
+    <File Path=".devcontainer/Dockerfile" />
+  </Folder>
+  <Folder Name="/Itens de Solução/ideas/">
+    <File Path="ideas/roadmap.md" />
+    <File Path="ideas/w1e1-studio.md" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="W1E1.Core/W1E1.Core.csproj" />
