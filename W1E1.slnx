@@ -5,7 +5,10 @@
     <File Path="Directory.Build.props" />
   </Folder>
   <Folder Name="/Itens de Solução/.devcontainer/">
-    <File Path=".devcontainer/Dockerfile" />
+    <File Path=".devcontainer/Dockerfile.db" />
+    <File Path=".devcontainer/Dockerfile.migrate" />
+    <File Path=".devcontainer/docker-compose.yml" />
+    <File Path=".devcontainer/devcontainer.json" />
   </Folder>
   <Folder Name="/Itens de Solução/ideas/">
     <File Path="ideas/roadmap.md" />

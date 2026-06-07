@@ -5,7 +5,7 @@
 	</PropertyGroup>
 
 	<Target Name="HuskyInstallOnSolutionOpen" 
-			BeforeTargets="CollectPackageReferences;BeforeBuild" 
+			BeforeTargets="CollectPackageReferences;BeforeBuild,Restore" 
 			Condition="!Exists('$(W1E1AutomationStampFile)') And '$(HUSKY)' != '0'">
 
 		<Exec Command="dotnet tool restore" 
