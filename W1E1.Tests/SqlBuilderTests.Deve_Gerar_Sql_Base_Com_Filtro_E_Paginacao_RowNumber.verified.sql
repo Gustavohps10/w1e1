@@ -1,4 +1,4 @@
-﻿-- MAIN QUERY
+-- MAIN QUERY
 SELECT * FROM (
                                     SELECT *,
                                            ROW_NUMBER() OVER (ORDER BY [ChaveFatoOrigem] ASC) AS RowNum
@@ -7,3 +7,4 @@ SELECT * FROM (
                                     WHERE 1=1  AND Q.StatusDestino = 'A'
                                 ) X
                                 WHERE RowNum BETWEEN 11 AND 40
+

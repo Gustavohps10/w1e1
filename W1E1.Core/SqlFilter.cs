@@ -1,169 +1,146 @@
-﻿namespace W1E1.Core
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+
+namespace W1E1.Core
 {
     public sealed class SqlFilter
     {
-        internal List<FilterAstNode> Nodes { get; } = new List<FilterAstNode>();
-        private readonly Stack<string> _scopeAliases = new Stack<string>();
+        internal List<FilterAstNode> Nodes { get; } = new();
+        private readonly ISqlProvider? _provider;
+        private readonly IMetadataProvider? _metadataProvider;
 
-        private string ResolveColumn(string column)
+        public SqlFilter() { }
+
+        internal SqlFilter(ISqlProvider? provider, IMetadataProvider? metadataProvider)
         {
-            if (string.IsNullOrWhiteSpace(column)) return column;
-            if (column.Contains(".")) return column;
-            if (_scopeAliases.Count == 0) return column;
-            return $"{_scopeAliases.Peek()}.{column}";
+            _provider = provider;
+            _metadataProvider = metadataProvider;
         }
 
-        public SqlFilter Scope(string alias, Action<SqlFilter> configure)
+        // --- ESTILO 1: Expression Tree ---
+        public SqlFilter Where<T>(Expression<Func<T, bool>> predicate) => AddExpression(LogicalOperator.And, predicate);
+        public SqlFilter And<T>(Expression<Func<T, bool>> predicate) => AddExpression(LogicalOperator.And, predicate);
+        public SqlFilter Or<T>(Expression<Func<T, bool>> predicate) => AddExpression(LogicalOperator.Or, predicate);
+
+        private SqlFilter AddExpression(LogicalOperator op, Expression predicate)
         {
-            _scopeAliases.Push(alias);
-            configure(this);
-            if (_scopeAliases.Count > 0) _scopeAliases.Pop();
+            Nodes.Add(new FilterAstNode { NodeType = FilterNodeType.ExpressionTree, Operator = op, LambdaExpression = predicate });
             return this;
         }
+
+        // --- ESTILO 2: Lambda Property ---
+        public SqlFilter Where<T>(Expression<Func<T, object>> property, object? value) => And<T>(property, "=", value);
+        public SqlFilter Where<T>(Expression<Func<T, object>> property, string op, object? value) => And<T>(property, op, value);
+        
+        public SqlFilter And<T>(Expression<Func<T, object>> property, object? value) => And<T>(property, "=", value);
+        public SqlFilter And<T>(Expression<Func<T, object>> property, string op, object? value)
+        {
+            string col = GetPropertyName(property);
+            Nodes.Add(new FilterAstNode { NodeType = FilterNodeType.Condition, Operator = LogicalOperator.And, ExpressionString = $"{col} {op}", Value = value });
+            return this;
+        }
+
+        public SqlFilter Or<T>(Expression<Func<T, object>> property, object? value) => Or<T>(property, "=", value);
+        public SqlFilter Or<T>(Expression<Func<T, object>> property, string op, object? value)
+        {
+            string col = GetPropertyName(property);
+            Nodes.Add(new FilterAstNode { NodeType = FilterNodeType.Condition, Operator = LogicalOperator.Or, ExpressionString = $"{col} {op}", Value = value });
+            return this;
+        }
+
+        // --- ESTILO 3: Strings (Escape Hatch com sobrecargas de Condição) ---
+        public SqlFilter Where(string expression, object? value = null) => And(expression, value);
+        public SqlFilter Where(bool condition, string expression, object? value = null) => And(condition, expression, value);
 
         public SqlFilter And(string expression, object? value = null)
         {
             if (value is null) return this;
-
-            Nodes.Add(new FilterAstNode
-            {
-                NodeType = FilterNodeType.Condition,
-                Operator = LogicalOperator.And,
-                Expression = ResolveColumn(expression),
-                Value = value
-            });
+            Nodes.Add(new FilterAstNode { NodeType = FilterNodeType.Condition, Operator = LogicalOperator.And, ExpressionString = expression, Value = value });
             return this;
         }
 
-        public SqlFilter AndIf(bool condition, string expression, object? value = null)
+        public SqlFilter And(bool condition, string expression, object? value = null)
         {
-            if (condition) And(expression, value);
-            return this;
+            if (!condition) return this;
+            return And(expression, value);
         }
 
         public SqlFilter Or(string expression, object? value = null)
         {
             if (value is null) return this;
-
-            Nodes.Add(new FilterAstNode
-            {
-                NodeType = FilterNodeType.Condition,
-                Operator = LogicalOperator.Or,
-                Expression = ResolveColumn(expression),
-                Value = value
-            });
+            Nodes.Add(new FilterAstNode { NodeType = FilterNodeType.Condition, Operator = LogicalOperator.Or, ExpressionString = expression, Value = value });
             return this;
         }
 
-        public SqlFilter In<TVal>(string column, IEnumerable<TVal>? values)
+        public SqlFilter Or(bool condition, string expression, object? value = null)
         {
-            if (values is null) return this;
-
-            List<object> list = new List<object>();
-            foreach (TVal val in values)
-            {
-                if (val != null) list.Add(val);
-            }
-
-            if (list.Count == 0) return this;
-
-            Nodes.Add(new FilterAstNode
-            {
-                NodeType = FilterNodeType.In,
-                Operator = LogicalOperator.And,
-                Expression = ResolveColumn(column),
-                Values = list
-            });
-            return this;
-        }
-
-        public SqlFilter NotIn<TVal>(string column, IEnumerable<TVal>? values)
-        {
-            if (values is null) return this;
-
-            List<object> list = new List<object>();
-            foreach (TVal val in values)
-            {
-                if (val != null) list.Add(val);
-            }
-
-            if (list.Count == 0) return this;
-
-            Nodes.Add(new FilterAstNode
-            {
-                NodeType = FilterNodeType.NotIn,
-                Operator = LogicalOperator.And,
-                Expression = ResolveColumn(column),
-                Values = list
-            });
-            return this;
-        }
-
-        public SqlFilter Search(string term, params string[] columns)
-        {
-            if (string.IsNullOrWhiteSpace(term)) return this;
-            if (columns is null || columns.Length == 0) return this;
-
-            string[] resolvedColumns = new string[columns.Length];
-            for (int i = 0; i < columns.Length; i++)
-            {
-                resolvedColumns[i] = ResolveColumn(columns[i]);
-            }
-
-            Nodes.Add(new FilterAstNode
-            {
-                NodeType = FilterNodeType.Search,
-                Operator = LogicalOperator.And,
-                Expression = term,
-                Columns = resolvedColumns
-            });
-            return this;
+            if (!condition) return this;
+            return Or(expression, value);
         }
 
         public SqlFilter Raw(string sql)
         {
-            if (string.IsNullOrWhiteSpace(sql)) return this;
-
-            Nodes.Add(new FilterAstNode
-            {
-                NodeType = FilterNodeType.Raw,
-                Operator = LogicalOperator.And,
-                Expression = sql
-            });
+            if (!string.IsNullOrWhiteSpace(sql))
+                Nodes.Add(new FilterAstNode { NodeType = FilterNodeType.Raw, Operator = LogicalOperator.And, RawSql = sql });
             return this;
         }
 
-        public SqlFilter Group(Action<SqlFilter> configure)
+        public SqlFilter Raw(bool condition, string sql)
         {
-            return AppendGroup(LogicalOperator.And, configure);
+            if (!condition) return this;
+            return Raw(sql);
         }
 
-        public SqlFilter OrGroup(Action<SqlFilter> configure)
-        {
-            return AppendGroup(LogicalOperator.Or, configure);
-        }
+        // --- SUBGRUPOS (Fluent Logic) ---
+        public SqlFilter Where(Action<SqlFilter> configure) => AppendGroup(LogicalOperator.And, configure);
+        public SqlFilter And(Action<SqlFilter> configure) => AppendGroup(LogicalOperator.And, configure);
+        public SqlFilter Or(Action<SqlFilter> configure) => AppendGroup(LogicalOperator.Or, configure);
 
-        private SqlFilter AppendGroup(LogicalOperator logicalOperator, Action<SqlFilter> configure)
+        private SqlFilter AppendGroup(LogicalOperator op, Action<SqlFilter> configure)
         {
-            SqlFilter child = new SqlFilter();
-            string[] currentAliases = _scopeAliases.ToArray();
-            for (int i = currentAliases.Length - 1; i >= 0; i--)
-            {
-                child._scopeAliases.Push(currentAliases[i]);
-            }
-
+            var child = new SqlFilter(_provider, _metadataProvider);
             configure(child);
-
             if (child.Nodes.Count > 0)
-            {
-                Nodes.Add(new FilterAstNode
-                {
-                    NodeType = FilterNodeType.Group,
-                    Operator = logicalOperator,
-                    Children = child.Nodes
-                });
-            }
+                Nodes.Add(new FilterAstNode { NodeType = FilterNodeType.Group, Operator = op, Children = child.Nodes });
             return this;
+        }
+
+        // --- SUBQUERIES (Exists / Scalar) ---
+        public SqlFilter WhereExists(Action<SqlQuery<object>> subQueryBuilder) => ExistsInternal(LogicalOperator.And, FilterNodeType.Exists, subQueryBuilder);
+        public SqlFilter AndNotExists(Action<SqlQuery<object>> subQueryBuilder) => ExistsInternal(LogicalOperator.And, FilterNodeType.NotExists, subQueryBuilder);
+
+        private SqlFilter ExistsInternal(LogicalOperator op, FilterNodeType type, Action<SqlQuery<object>> subQueryBuilder)
+        {
+            var subQuery = _provider != null 
+                ? new SqlQuery<object>(_provider, _metadataProvider!) 
+                : new SqlQuery<object>();
+
+            subQueryBuilder(subQuery);
+            Nodes.Add(new FilterAstNode { NodeType = type, Operator = op, SubQueryObj = subQuery });
+            return this;
+        }
+
+        public SqlFilter Where(string expression, Action<SqlQuery<object>> subQueryBuilder) => And(expression, subQueryBuilder);
+        public SqlFilter And(string expression, Action<SqlQuery<object>> subQueryBuilder)
+        {
+            var subQuery = _provider != null 
+                ? new SqlQuery<object>(_provider, _metadataProvider!) 
+                : new SqlQuery<object>();
+
+            subQueryBuilder(subQuery);
+            Nodes.Add(new FilterAstNode { NodeType = FilterNodeType.Condition, Operator = LogicalOperator.And, ExpressionString = expression, SubQueryObj = subQuery });
+            return this;
+        }
+
+        // --- UTIL ---
+        private static string GetPropertyName<T>(Expression<Func<T, object>> expression)
+        {
+            if (expression.Body is UnaryExpression unary && unary.Operand is MemberExpression memberUnary)
+                return memberUnary.Member.Name;
+            if (expression.Body is MemberExpression member)
+                return member.Member.Name;
+            throw new ArgumentException("Expressão inválida para mapeamento de propriedade.");
         }
     }
 }

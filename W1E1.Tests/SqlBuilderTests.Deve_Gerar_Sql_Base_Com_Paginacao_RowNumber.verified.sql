@@ -1,4 +1,4 @@
-﻿-- MAIN QUERY
+-- MAIN QUERY
 SELECT * FROM (
                                     SELECT *,
                                            ROW_NUMBER() OVER (ORDER BY [NumDoctoOrigem] ASC) AS RowNum
@@ -7,3 +7,4 @@ SELECT * FROM (
                                     
                                 ) X
                                 WHERE RowNum BETWEEN 1 AND 50
+

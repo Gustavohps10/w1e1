@@ -1,13 +1,34 @@
-﻿namespace W1E1.Core
-{
-    public sealed class FilterAstNode
-    {
-        public FilterNodeType NodeType { get; init; }
-        public LogicalOperator Operator { get; init; }
-        public string Expression { get; init; } = string.Empty;
-        public object? Value { get; init; }
-        public List<object> Values { get; init; } = new List<object>();
-        public string[] Columns { get; init; } = Array.Empty<string>();
-        public List<FilterAstNode> Children { get; init; } = new List<FilterAstNode>();
-    }
-}
+// using System.Linq.Expressions;
+
+// namespace W1E1.Core
+// {
+//     public enum FilterNodeType 
+//     { 
+//         Raw, 
+//         PropertyCompare, 
+//         ExpressionTree, 
+//         Group 
+//     }
+    
+//     public enum LogicalOperator 
+//     { 
+//         And, 
+//         Or 
+//     }
+
+//     internal sealed class FilterAstNode
+//     {
+//         public FilterNodeType NodeType { get; set; }
+//         public LogicalOperator Operator { get; set; }
+        
+//         public string RawSql { get; set; } = string.Empty;
+        
+//         public Expression? LambdaExpression { get; set; }
+        
+//         public string PropertyName { get; set; } = string.Empty;
+//         public string RelationalOperator { get; set; } = string.Empty;
+//         public object? Value { get; set; }
+        
+//         public List<FilterAstNode>? Children { get; set; }
+//     }
+// }

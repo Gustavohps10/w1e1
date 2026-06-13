@@ -1,4 +1,4 @@
-﻿-- MAIN QUERY
+-- MAIN QUERY
 ;WITH base_origem AS (
                                 SELECT
                                     'S' AS TipoDocumento,
@@ -46,8 +46,8 @@ SELECT * FROM (
                                     SELECT *,
                                            ROW_NUMBER() OVER (ORDER BY [ChaveFatoOrigem] DESC) AS RowNum
                                            , COUNT(*) OVER() AS TotalRegistros
-                                    FROM (SELECT *
-                            FROM final F) Q
+                                    FROM (SELECT * FROM final F) Q
                                     WHERE 1=1  AND (StatusDestino = 0 AND (ChaveFatoOrigem LIKE '%863%' OR DescricaoTmvOrigem LIKE '%863%'))
                                 ) X
                                 WHERE RowNum BETWEEN 1 AND 50
+
